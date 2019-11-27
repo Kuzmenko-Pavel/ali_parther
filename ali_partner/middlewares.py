@@ -44,10 +44,10 @@ def error_pages(overrides):
 async def cookie_middleware(app, handler):
     async def middleware(request):
         user_cookie_name = 'parther_unique_id'
-        expires = datetime.utcnow() + timedelta(days=365)
-        user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        user_cookie_domain = '*.yottos.com'
-        user_cookie_max_age = 60 * 60 * 24 * 365
+        # expires = datetime.utcnow() + timedelta(days=365)
+        # user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        # user_cookie_domain = '*.yottos.com'
+        # user_cookie_max_age = 60 * 60 * 24 * 365
         try:
             user_cookie = int(request.cookies.get(user_cookie_name, 0))
         except Exception:
@@ -61,11 +61,7 @@ async def cookie_middleware(app, handler):
 
         request.user_cookie = user_cookie
         response = await handler(request)
-        response.set_cookie(user_cookie_name, request.user_cookie,
-                            path='',
-                            expires=user_cookie_expires,
-                            domain=user_cookie_domain,
-                            max_age=user_cookie_max_age)
+        response.set_cookie(user_cookie_name, request.user_cookie, path='')
         return response
 
     return middleware

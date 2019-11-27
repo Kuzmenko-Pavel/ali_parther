@@ -45,32 +45,51 @@ def error_pages(overrides):
 
 async def cookie_middleware(app, handler):
     async def middleware(request):
+        #имя куки счетчика запросов
         parther_unique_id = 'parther_unique_id'
+
+        # имя куки партнера
         parther_id = 'parther_id'
+
         expires = datetime.utcnow() + timedelta(days=365)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
         user_cookie_max_age = 60 * 60 * 24 * 365
+
         try:
+            # получаю счетчик запросов
             user_cookie = int(request.cookies.get(parther_unique_id, 0))
-            parther =  int(request.cookies.get(parther_id, randint(1, 2)))
+
+            # получаю партнера
+            parther = int(request.cookies.get(parther_id, randint(1, 2)))
         except Exception:
+            #если чето левое было то дефолт
             user_cookie = 1
             parther = randint(1, 2)
 
+        #если счетчик больше 0, то не уник
         if user_cookie > 0:
             request.not_uniq = True
         else:
             request.not_uniq = False
 
+        #инкремент счетчика
         user_cookie += 1
+
+        #засунул в реквест чтобы дальше работать
         request.user_cookie = user_cookie
         request.parther = parther
+
         response = await handler(request)
+
+        #пересоздал куку счетчика с новыми значениями
         response.set_cookie(parther_unique_id, request.user_cookie, path='',
                             expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
+
+        # пересоздал куку партнера с новыми временем
         response.set_cookie(parther_id, request.parther, path='',
                             expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
         try:
+            #костыль для поддержки samesite
             response._cookies[parther_unique_id]['samesite'] = None
             response._cookies[parther_id]['samesite'] = None
         except Exception:

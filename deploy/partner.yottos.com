@@ -65,11 +65,4 @@ server {
         proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
         proxy_next_upstream_tries 1;
     }
-
-    location /static/ {
-        expires    10d;
-        add_header  Cache-Control  'public';
-        alias /var/www/ali_parther/ali_partner/static/;
-    }
-
 }

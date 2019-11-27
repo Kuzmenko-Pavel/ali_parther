@@ -1,6 +1,6 @@
-from aiohttp import hdrs, web
-import time
 from datetime import datetime, timedelta
+
+from aiohttp import web
 
 from ali_partner.logger import logger, exception_message
 
@@ -47,13 +47,38 @@ async def cookie_middleware(app, handler):
         expires = datetime.utcnow() + timedelta(days=365)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
         user_cookie_domain = 'parther.yottos.com'
-        user_cookie_max_age = 60*60*24*365
-        request.user_cookie = request.cookies.get(user_cookie_name, str(time.time()).replace('.', ''))
+        user_cookie_max_age = 60 * 60 * 24 * 365
+        try:
+            user_cookie = int(request.cookies.get(user_cookie_name, 0))
+        except Exception:
+            user_cookie = 1
+
+        if user_cookie:
+            request.not_uniq = True
+        else:
+            request.not_uniq = False
+            user_cookie += 1
+
+        request.user_cookie = user_cookie
         response = await handler(request)
         response.set_cookie(user_cookie_name, request.user_cookie,
                             expires=user_cookie_expires,
                             domain=user_cookie_domain,
                             max_age=user_cookie_max_age)
+        return response
+
+    return middleware
+
+
+async def check_referer_middleware(app, handler):
+    async def middleware(request):
+        headers = request.headers
+        request.referer = headers.get('Referer', '')
+        if request.referer == 'rg.yottos.com':
+            request.fail_referer = False
+        else:
+            request.fail_referer = True
+        response = await handler(request)
         return response
 
     return middleware
@@ -77,4 +102,5 @@ def setup_middlewares(app):
                                     500: handle_500})
     app.middlewares.append(error_middleware)
     app.middlewares.append(cookie_middleware)
+    app.middlewares.append(check_referer_middleware)
     app.middlewares.append(disable_cache_middleware)

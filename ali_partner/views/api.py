@@ -1,13 +1,15 @@
-from aiohttp import web
+import os
 import re
-import aiohttp_jinja2
-from datetime import datetime
+
+from aiohttp import web
+
 from ali_partner.logger import logger, exception_message
 
 
-@aiohttp_jinja2.template('index.html')
 class ApiView(web.View):
     async def get_data(self):
+        static_path = os.path.join(self.request.app['config']['dir_path'], 'static')
+        tail = self.request.match_info['tail']
         ip = '127.0.0.1'
         ip_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
         headers = self.request.headers
@@ -29,13 +31,18 @@ class ApiView(web.View):
             except Exception as ex:
                 logger.error(exception_message(exc=str(ex), request=str(self.request._message)))
 
-        dt = datetime.now()
-
         data = {
-            'ip': ip,
-            'dt': dt,
+            'ip': ip
         }
-        return data
+        if self.request.not_uniq or self.request.fail_referer:
+            file_path = os.path.join(static_path, tail)
+            file_exists = os.path.isfile(file_path)
+            if not file_exists:
+                file_path = os.path.join(static_path, 'index.html')
+
+            return web.FileResponse(path=file_path)
+        else:
+            return web.HTTPFound('http://helpers.com.ua/')
 
     async def get(self):
         return await self.get_data()

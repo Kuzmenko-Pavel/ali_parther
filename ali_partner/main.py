@@ -1,17 +1,14 @@
 import argparse
-import uvloop
 import asyncio
 import os
 import sys
 
-from ali_partner.httpwriter_patch import patch_streamwriter
-patch_streamwriter()
-from aiohttp import web
 import aiohttp_debugtoolbar
+import uvloop
+from aiohttp import web
 from trafaret_config import commandline
 
-from ali_partner.templates import init_templates
-from ali_partner.logger import logger, exception_message
+from ali_partner.logger import logger
 from ali_partner.middlewares import setup_middlewares
 from ali_partner.routes import setup_routes
 from ali_partner.utils import TRAFARET_CONF
@@ -34,7 +31,6 @@ def init(loop, argv):
     app['config'] = config
     if app['config']['debug']['console']:
         aiohttp_debugtoolbar.setup(app)
-    init_templates(app)
     setup_routes(app)
     setup_middlewares(app)
     return app

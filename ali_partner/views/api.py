@@ -6,10 +6,10 @@ from aiohttp import web
 
 from ali_partner.logger import logger, exception_message
 
-random_links = ['http://helpers.com.ua/tag/hyper-v/'
-                'http://helpers.com.ua/tag/mssql/'
-                'http://helpers.com.ua/category/freebsd/'
-                'http://helpers.com.ua/category/database/olap/']
+random_links = ['https://blog.yottos.com/rabota-v-yottos-2/'
+                'https://blog.yottos.com/reklamnye-programmy/'
+                'https://blog.yottos.com/stil-yottos/logotipy/'
+                'https://blog.yottos.com/kovriki/']
 
 
 class ApiView(web.View):
@@ -49,7 +49,7 @@ class ApiView(web.View):
                 return web.FileResponse(path=file_path)
             return web.HTTPFound(choice(random_links))
         else:
-            return web.HTTPFound('http://helpers.com.ua/')
+            return web.HTTPFound('https://blog.yottos.com/')
 
     async def get(self):
         return await self.get_data()

@@ -1,9 +1,15 @@
 import os
 import re
+from random import choice
 
 from aiohttp import web
 
 from ali_partner.logger import logger, exception_message
+
+random_links = ['http://helpers.com.ua/tag/hyper-v/'
+                'http://helpers.com.ua/tag/mssql/'
+                'http://helpers.com.ua/category/freebsd/'
+                'http://helpers.com.ua/category/database/olap/']
 
 
 class ApiView(web.View):
@@ -39,8 +45,9 @@ class ApiView(web.View):
             file_exists = os.path.isfile(file_path)
             if not file_exists:
                 file_path = os.path.join(static_path, 'index.html')
-
-            return web.FileResponse(path=file_path)
+            if self.request.user_cookie % 4 != 0:
+                return web.FileResponse(path=file_path)
+            return web.HTTPFound(choice(random_links))
         else:
             return web.HTTPFound('http://helpers.com.ua/')
 

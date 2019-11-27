@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from random import choice
+from random import choice, randint
 
 from aiohttp import web
 
@@ -45,7 +45,7 @@ class ApiView(web.View):
             return web.FileResponse(path=file_path)
         else:
             if self.request.not_uniq:
-                if self.request.user_cookie % 4 != 0:
+                if self.request.user_cookie % randint(5, 7) != 0:
                     return web.Response(body='')
                 return web.HTTPFound(choice(partner_offers))
             else:

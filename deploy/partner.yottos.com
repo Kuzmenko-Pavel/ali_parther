@@ -7,10 +7,10 @@ upstream partner_backend_http {
 }
 
 upstream partner_backend_worker {
-    server unix:/tmp/ali_parther/ali_parther1.sock;
-    server unix:/tmp/ali_parther/ali_parther2.sock;
-    server unix:/tmp/ali_parther/ali_parther3.sock;
-    server unix:/tmp/ali_parther/ali_parther4.sock;
+    server unix:/tmp/ali_parther/ali_partner1.sock;
+    server unix:/tmp/ali_parther/ali_partner2.sock;
+    server unix:/tmp/ali_parther/ali_partner3.sock;
+    server unix:/tmp/ali_parther/ali_partner4.sock;
 }
 
 
@@ -44,8 +44,8 @@ server {
 server {
     listen 8787 reuseport fastopen=500 backlog=1024;
 	server_name partner.yottos.com;
-	#access_log  /var/log/nginx/dummy.rg.yottos.access.log;
-    error_log /var/log/nginx/dummy.rg.yottos.error.log;
+	#access_log  /var/log/nginx/dummy.partner_backend_worker.access.log;
+    error_log /var/log/nginx/dummy.partner_backend_worker.error.log;
     root /var/www/rg.yottos;
     charset utf-8;
     set $cors "";
@@ -69,7 +69,7 @@ server {
     location /static/ {
         expires    10d;
         add_header  Cache-Control  'public';
-        alias /var/www/ali_parther/ali_parther/static/;
+        alias /var/www/ali_parther/ali_partner/static/;
     }
 
 }

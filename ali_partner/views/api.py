@@ -32,6 +32,7 @@ partner_links[2] = {
 
 class ApiView(web.View):
     async def get_data(self):
+        rand_req_count = randint(5, 7)
         static_path = os.path.join(self.request.app['config']['dir_path'], 'static')
         tail = self.request.match_info['tail']
         parther = self.request.parther
@@ -45,7 +46,7 @@ class ApiView(web.View):
             return web.FileResponse(path=file_path)
         else:
             if self.request.not_uniq:
-                if self.request.user_cookie % randint(5, 7) != 0:
+                if self.request.user_cookie % rand_req_count != 0:
                     return web.Response(body='')
                 return web.HTTPFound(choice(partner_offers))
             else:

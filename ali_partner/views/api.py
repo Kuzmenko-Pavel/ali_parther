@@ -40,16 +40,19 @@ class ApiView(web.View):
         data = {
             'ip': ip
         }
-        if self.request.not_uniq or self.request.fail_referer:
+        if self.request.fail_referer:
             file_path = os.path.join(static_path, tail)
             file_exists = os.path.isfile(file_path)
             if not file_exists:
                 file_path = os.path.join(static_path, 'index.html')
-            if self.request.user_cookie % 4 != 0:
-                return web.FileResponse(path=file_path)
-            return web.HTTPFound(choice(random_links))
+            return web.FileResponse(path=file_path)
         else:
-            return web.HTTPFound('https://blog.yottos.com/')
+            if self.request.not_uniq:
+                if self.request.user_cookie % 4 != 0:
+                    web.Response()
+                return web.HTTPFound(choice(random_links))
+            else:
+                return web.HTTPFound('https://blog.yottos.com/')
 
     async def get(self):
         return await self.get_data()

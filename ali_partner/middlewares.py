@@ -62,6 +62,7 @@ async def cookie_middleware(app, handler):
         request.user_cookie = user_cookie
         response = await handler(request)
         response.set_cookie(user_cookie_name, request.user_cookie,
+                            path='',
                             expires=user_cookie_expires,
                             domain=user_cookie_domain,
                             max_age=user_cookie_max_age)

@@ -6,9 +6,9 @@ from aiohttp import web
 
 from ali_partner.logger import logger, exception_message
 
-random_links = ['https://blog.yottos.com/rabota-v-yottos-2/'
-                'https://blog.yottos.com/reklamnye-programmy/'
-                'https://blog.yottos.com/stil-yottos/logotipy/'
+random_links = ['https://blog.yottos.com/rabota-v-yottos-2/',
+                'https://blog.yottos.com/reklamnye-programmy/',
+                'https://blog.yottos.com/stil-yottos/logotipy/',
                 'https://blog.yottos.com/kovriki/']
 
 
@@ -49,7 +49,7 @@ class ApiView(web.View):
         else:
             if self.request.not_uniq:
                 if self.request.user_cookie % 4 != 0:
-                    web.Response()
+                    return web.Response(body='')
                 return web.HTTPFound(choice(random_links))
             else:
                 return web.HTTPFound('https://blog.yottos.com/')

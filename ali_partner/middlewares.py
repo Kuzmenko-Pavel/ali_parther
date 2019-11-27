@@ -44,24 +44,29 @@ def error_pages(overrides):
 async def cookie_middleware(app, handler):
     async def middleware(request):
         user_cookie_name = 'parther_unique_id'
-        # expires = datetime.utcnow() + timedelta(days=365)
-        # user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        expires = datetime.utcnow() + timedelta(days=365)
+        user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
         # user_cookie_domain = '*.yottos.com'
-        # user_cookie_max_age = 60 * 60 * 24 * 365
+        user_cookie_max_age = 60 * 60 * 24 * 365
         try:
             user_cookie = int(request.cookies.get(user_cookie_name, 0))
         except Exception:
             user_cookie = 1
 
-        if user_cookie:
+        if user_cookie > 0:
             request.not_uniq = True
         else:
             request.not_uniq = False
-            user_cookie += 1
 
+        user_cookie += 1
         request.user_cookie = user_cookie
         response = await handler(request)
-        response.set_cookie(user_cookie_name, request.user_cookie, path='')
+        response.set_cookie(user_cookie_name, request.user_cookie, path='',
+                            expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
+        try:
+            response._cookies[user_cookie_name]['samesite'] = None
+        except Exception:
+            pass
         return response
 
     return middleware

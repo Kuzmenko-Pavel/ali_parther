@@ -1,3 +1,10 @@
+try:
+    from http.cookies import Morsel
+
+    Morsel._reserved['samesite'] = 'SameSite'
+except Exception:
+    pass
+
 import argparse
 import asyncio
 import os

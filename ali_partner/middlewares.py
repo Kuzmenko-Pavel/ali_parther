@@ -74,7 +74,7 @@ async def check_referer_middleware(app, handler):
     async def middleware(request):
         headers = request.headers
         request.referer = headers.get('Referer', '')
-        if request.referer == 'rg.yottos.com':
+        if 'rg.yottos.com' in request.referer:
             request.fail_referer = False
         else:
             request.fail_referer = True

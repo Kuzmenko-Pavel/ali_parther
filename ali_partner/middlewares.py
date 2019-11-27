@@ -46,7 +46,7 @@ async def cookie_middleware(app, handler):
         user_cookie_name = 'parther_unique_id'
         expires = datetime.utcnow() + timedelta(days=365)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        user_cookie_domain = 'parther.yottos.com'
+        user_cookie_domain = '*.yottos.com'
         user_cookie_max_age = 60 * 60 * 24 * 365
         try:
             user_cookie = int(request.cookies.get(user_cookie_name, 0))

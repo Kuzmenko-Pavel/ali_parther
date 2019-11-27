@@ -1,45 +1,42 @@
 import os
-import re
+from collections import defaultdict
 from random import choice
 
 from aiohttp import web
 
-from ali_partner.logger import logger, exception_message
 
-random_links = ['https://blog.yottos.com/rabota-v-yottos-2/',
-                'https://blog.yottos.com/reklamnye-programmy/',
-                'https://blog.yottos.com/stil-yottos/logotipy/',
-                'https://blog.yottos.com/kovriki/']
+partner_links = defaultdict(lambda: {
+    'partner_link': 'https://blog.yottos.com/',
+    'partner_offers': ['https://blog.yottos.com/rabota-v-yottos-2/',
+                       'https://blog.yottos.com/reklamnye-programmy/',
+                       'https://blog.yottos.com/stil-yottos/logotipy/',
+                       'https://blog.yottos.com/kovriki/']
+})
+
+partner_links[1] = {
+    'partner_link': 'https://blog.yottos.com/',
+    'partner_offers': ['https://blog.yottos.com/rabota-v-yottos-2/',
+                       'https://blog.yottos.com/reklamnye-programmy/',
+                       'https://blog.yottos.com/stil-yottos/logotipy/',
+                       'https://blog.yottos.com/kovriki/']
+}
+
+partner_links[2] = {
+    'partner_link': 'https://www.google.com/',
+    'partner_offers': ['https://www.google.com/adsense/start/#/?modal_active=none',
+                       'https://www.google.com/intl/ru/gmail/about/#',
+                       'https://www.google.com/intl/ru/drive/',
+                       'https://www.youtube.com/?gl=UA&tab=w11']
+}
 
 
 class ApiView(web.View):
     async def get_data(self):
         static_path = os.path.join(self.request.app['config']['dir_path'], 'static')
         tail = self.request.match_info['tail']
-        ip = '127.0.0.1'
-        ip_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
-        headers = self.request.headers
-
-        x_real_ip = headers.get('X-Real-IP', headers.get('X-Forwarded-For', ''))
-        x_real_ip_check = ip_regex.match(x_real_ip)
-        if x_real_ip_check:
-            x_real_ip = x_real_ip_check.group()
-        else:
-            x_real_ip = None
-
-        if x_real_ip is not None:
-            ip = x_real_ip
-        else:
-            try:
-                peername = self.request.transport.get_extra_info('peername')
-                if peername is not None and isinstance(peername, tuple):
-                    ip, _ = peername
-            except Exception as ex:
-                logger.error(exception_message(exc=str(ex), request=str(self.request._message)))
-
-        data = {
-            'ip': ip
-        }
+        parther = self.request.parther
+        partner_link = partner_links[parther]['partner_link']
+        partner_offers = partner_links[parther]['partner_offers']
         if self.request.fail_referer:
             file_path = os.path.join(static_path, tail)
             file_exists = os.path.isfile(file_path)
@@ -50,9 +47,9 @@ class ApiView(web.View):
             if self.request.not_uniq:
                 if self.request.user_cookie % 4 != 0:
                     return web.Response(body='')
-                return web.HTTPFound(choice(random_links))
+                return web.HTTPFound(choice(partner_offers))
             else:
-                return web.HTTPFound('https://blog.yottos.com/')
+                return web.HTTPFound(partner_link)
 
     async def get(self):
         return await self.get_data()

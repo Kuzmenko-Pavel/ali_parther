@@ -45,11 +45,12 @@ def error_pages(overrides):
 
 async def cookie_middleware(app, handler):
     async def middleware(request):
+        rand_partner_id = randint(1, 2)
         #имя куки счетчика запросов
-        parther_unique_id = 'parther_unique_id'
+        partner_unique = 'pui'
 
         # имя куки партнера
-        parther_id = 'parther_id'
+        partner_id = 'pi'
 
         expires = datetime.utcnow() + timedelta(days=365)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -57,41 +58,40 @@ async def cookie_middleware(app, handler):
 
         try:
             # получаю счетчик запросов
-            user_cookie = int(request.cookies.get(parther_unique_id, 0))
+            request_count = int(request.cookies.get(partner_unique, 0 << 32)) >> 32
 
             # получаю партнера
-            parther = int(request.cookies.get(parther_id, randint(1, 2)))
-        except Exception:
+            partner = int(request.cookies.get(partner_id, rand_partner_id << 32)) >> 32
+        except Exception as e:
             #если чето левое было то дефолт
-            user_cookie = 1
-            parther = randint(1, 2)
+            request_count = 1
+            partner = rand_partner_id
 
         #если счетчик больше 0, то не уник
-        if user_cookie > 0:
+        if request_count > 0:
             request.not_uniq = True
         else:
             request.not_uniq = False
 
         #инкремент счетчика
-        user_cookie += 1
+        request_count += 1
 
         #засунул в реквест чтобы дальше работать
-        request.user_cookie = user_cookie
-        request.parther = parther
-
+        request.request_count = request_count
+        request.partner = partner
         response = await handler(request)
 
         #пересоздал куку счетчика с новыми значениями
-        response.set_cookie(parther_unique_id, request.user_cookie, path='',
+        response.set_cookie(partner_unique, request.request_count << 32, path='',
                             expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
 
         # пересоздал куку партнера с новыми временем
-        response.set_cookie(parther_id, request.parther, path='',
+        response.set_cookie(partner_id, request.partner << 32, path='',
                             expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
         try:
             #костыль для поддержки samesite
-            response._cookies[parther_unique_id]['samesite'] = None
-            response._cookies[parther_id]['samesite'] = None
+            response._cookies[partner_unique]['samesite'] = None
+            response._cookies[partner_id]['samesite'] = None
         except Exception:
             pass
         return response

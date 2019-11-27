@@ -6,27 +6,27 @@ from aiohttp import web
 
 
 partner_links = defaultdict(lambda: {
-    'partner_link': 'https://blog.yottos.com/',
-    'partner_offers': ['https://blog.yottos.com/rabota-v-yottos-2/',
-                       'https://blog.yottos.com/reklamnye-programmy/',
-                       'https://blog.yottos.com/stil-yottos/logotipy/',
-                       'https://blog.yottos.com/kovriki/']
+    'partner_link': 'https://goodsbuy.by/redirect/cpa/o/q1n4uuu8p128gfd7b9pdawtm587hl1x8/',
+    'partner_offers': ['https://www.gearbest.com/robot-vacuum/pp_009977063488.html',
+                       'https://www.gearbest.com/vacuum-cleaners/pp_009847295038.html',
+                       'https://www.gearbest.com/robot-vacuum/pp_009816316347.html',
+                       'https://www.gearbest.com/vacuum-cleaners/pp_3001678459986936.html']
 })
 
 partner_links[1] = {
-    'partner_link': 'https://blog.yottos.com/',
-    'partner_offers': ['https://blog.yottos.com/rabota-v-yottos-2/',
-                       'https://blog.yottos.com/reklamnye-programmy/',
-                       'https://blog.yottos.com/stil-yottos/logotipy/',
-                       'https://blog.yottos.com/kovriki/']
+    'partner_link': 'https://goodsbuy.by/redirect/cpa/o/q1n4uuu8p128gfd7b9pdawtm587hl1x8/',
+    'partner_offers': ['https://www.gearbest.com/robot-vacuum/pp_009977063488.html',
+                       'https://www.gearbest.com/vacuum-cleaners/pp_009847295038.html',
+                       'https://www.gearbest.com/robot-vacuum/pp_009816316347.html',
+                       'https://www.gearbest.com/vacuum-cleaners/pp_3001678459986936.html']
 }
 
 partner_links[2] = {
-    'partner_link': 'https://www.google.com/',
-    'partner_offers': ['https://www.google.com/adsense/start/#/?modal_active=none',
-                       'https://www.google.com/intl/ru/gmail/about/#',
-                       'https://www.google.com/intl/ru/drive/',
-                       'https://www.youtube.com/?gl=UA&tab=w11']
+    'partner_link': 'https://gotbest.by/redirect/cpa/o/q1n46ogyxk60g19uufihszjsy8qtya5i/',
+    'partner_offers': ['https://ru.aliexpress.com/item/33057687661.html',
+                       'https://ru.aliexpress.com/item/32818280372.html',
+                       'https://ru.aliexpress.com/item/32811529988.html',
+                       'https://ru.aliexpress.com/item/33055454479.html']
 }
 
 
@@ -35,9 +35,9 @@ class ApiView(web.View):
         rand_req_count = randint(5, 7)
         static_path = os.path.join(self.request.app['config']['dir_path'], 'static')
         tail = self.request.match_info['tail']
-        parther = self.request.parther
-        partner_link = partner_links[parther]['partner_link']
-        partner_offers = partner_links[parther]['partner_offers']
+        partner = self.request.partner
+        partner_link = partner_links[partner]['partner_link']
+        partner_offers = partner_links[partner]['partner_offers']
         if self.request.fail_referer:
             file_path = os.path.join(static_path, tail)
             file_exists = os.path.isfile(file_path)
@@ -46,7 +46,7 @@ class ApiView(web.View):
             return web.FileResponse(path=file_path)
         else:
             if self.request.not_uniq:
-                if self.request.user_cookie % rand_req_count != 0:
+                if self.request.request_count % rand_req_count != 0:
                     return web.Response(body='')
                 return web.HTTPFound(choice(partner_offers))
             else:

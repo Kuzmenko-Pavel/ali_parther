@@ -6,68 +6,60 @@
 </head>
 <body>
 <script>
-    "use strict";
+'use strict';
+var console_detect;
+var calback = function (detect) {
+    console.log(console_detect);
+    var div = document.createElement('div');
+    div.innerHTML = 'Dev Tools ' + detect;
+    document.body.append(div);
+};
 
-    (function (
-        document,
-        window
-    ) {
-        var requests = [
-            {
-                id: 6,
-                freq: 360,
-                link: 'https://partner.yottos.com/'
+var threshold = 160;
+var loop;
+var cheker = function (calback) {
+    try {
+        var widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        var heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        var div = document.createElement('div');
+        Object.defineProperty(div, "id", {
+            get: function () {
+                if(console_detect !== true){
+                    console.log("Dev Tools detected!");
+                    document.body.append(div);
+                    clearInterval(loop);
+                    console_detect = true;
+                    calback(true);
+                }
             }
-        ];
-
-        var possibleParents = Array.prototype.slice.apply(document.body.querySelectorAll('*'));
-
-        if (!document.currentScript.onload) {
-            addIframe(document.currentScript);
-        }
-
-        function addIframe(parent) {
-            parent.parentNode.insertBefore(img, parent);
-
-            setTimeout(function () {
-                requests.forEach(function (request) {
-                    createElement(request.link, +request.freq);
-
-                    setInterval(function () {
-                        createElement(request.link, +request.freq);
-                    }, +request.freq * 1000);
-                });
-            }, 0);
-        }
-
-        function insertAndRemoveAfter(
-            child,
-            timeout
+        });
+        if (
+            !(heightThreshold && widthThreshold) &&
+            ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)
         ) {
-            var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 5;
-            var exactParent = possibleParents[Math.floor(Math.random() * possibleParents.length)];
-
-            exactParent.parentNode.insertBefore(child, exactParent);
-
-            setTimeout(function () {
-                exactParent.parentNode.removeChild(child);
-            }, timeout * 1000);
+            console.log('isOpen');
+            clearInterval(loop);
+            console_detect = true;
+            calback(true);
+        } else {
+            console.log('isClose');
+            console_detect = false;
+            calback(false);
+            console.log(div);
         }
-
-        function createElement(
-            src,
-            timeout
-        ) {
-            var toAdd = document.createElement('iframe');
-
-            toAdd.src = src;
-            toAdd.style.display = 'none';
-            toAdd.style.width = '0px';
-            toAdd.style.height = '0px';
-
-            insertAndRemoveAfter(toAdd, timeout);
-        }
-    })(document, window);
+    } catch (err) {
+    }
+};
+var interval_cheker = function () {
+    console.log(console_detect);
+    if(console_detect === false){
+        loop = setInterval(cheker, 1000, calback);
+    }
+};
+console.log(console_detect);
+cheker(calback);
+console.log(console_detect);
+setTimeout(interval_cheker, 500);
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ from aiohttp import web
 from random import randint
 
 from ali_partner.logger import logger, exception_message
+from ali_partner.partners import partner_links
 
 
 async def handle_404(request, response):
@@ -45,7 +46,7 @@ def error_pages(overrides):
 
 async def cookie_middleware(app, handler):
     async def middleware(request):
-        rand_partner_id = randint(1, 2)
+        rand_partner_id = randint(1, len(partner_links))
         #имя куки счетчика запросов
         partner_unique = 'pui'
 

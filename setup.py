@@ -27,6 +27,7 @@ install_requires = ['aiohttp',
                     'uvloop',
                     'cchardet',
                     'aiohttp_debugtoolbar',
+                    'requests'
                     ]
 
 setup(
@@ -41,6 +42,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
+            'link_check = console_scripts.link_checker:main',
         ],
     }
 )

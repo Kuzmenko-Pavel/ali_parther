@@ -53,9 +53,9 @@ async def cookie_middleware(app, handler):
         # имя куки партнера
         partner_id = 'pi'
 
-        expires = datetime.utcnow() + timedelta(days=365)
+        expires = datetime.utcnow() + timedelta(hours=2)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        user_cookie_max_age = 60 * 60 * 24 * 365
+        user_cookie_max_age = 60 * 60 * 2
 
         try:
             # получаю счетчик запросов

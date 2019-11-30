@@ -3,6 +3,10 @@ from os import path
 import sys
 import json
 import requests
+import re
+
+
+script_re = re.compile('<\s*script[^>]*>(.|\s)*?<\s*/\s*script>')
 
 
 session = requests.Session()
@@ -39,6 +43,18 @@ def checker(from_file, to_file):
                             "partner": item.get('partner'),
                             "original": r.history[-1].url
                         })
+                else:
+                    urls = re.findall('\'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/?]\S+\'', r.text)
+                    url = ''.join(urls)[1:-1]
+                    r = session.get(url)
+                    if r.status_code != requests.codes.ok:
+                        continue
+                    result.append({
+                        "id": item.get('id'),
+                        "partner": item.get('partner'),
+                        "original": url
+                    })
+
         except Exception as e:
             print(e)
 

@@ -76,7 +76,7 @@ async def cookie_middleware(app, handler):
 
         #инкремент счетчика
         request_count += 1
-        logger.info(request_count)
+
         #засунул в реквест чтобы дальше работать
         request.request_count = request_count
         request.partner = partner

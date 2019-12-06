@@ -25,7 +25,9 @@ class ApiView(web.View):
         else:
             count_gotbest = self.request.app.view_count['gotbest']
             count_aliexpress = self.request.app.view_count['aliexpress']
-            if count_gotbest > ((count_aliexpress + count_aliexpress) / 100.0) * gotbest_range:
+            if (count_gotbest + count_aliexpress) % 10 == 0:
+                print('gotbest %s aliexpress %s' % (count_gotbest, count_aliexpress))
+            if count_gotbest > ((count_gotbest + count_aliexpress) / 100.0) * gotbest_range:
                 if self.request.not_uniq:
                     return web.Response(body='')
                 else:
@@ -37,7 +39,6 @@ class ApiView(web.View):
                 else:
                     self.request.app.view_count['gotbest'] += 1
                     return web.HTTPFound(partner_link)
-
             # if self.request.not_uniq:
             #     if self.request.request_count % rand_req_count != 0:
             #         return web.Response(body='')

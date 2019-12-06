@@ -31,3 +31,6 @@
     link_check ./ali_partner/partner-links.json ./partner-links-checked.json
 
     
+    
+    
+git pull && supervisorctl restart ali_parther:

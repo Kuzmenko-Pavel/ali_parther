@@ -5,6 +5,8 @@ from aiohttp import web
 
 from ali_partner.partners import partner_links
 
+gotbest_range = 10.0
+
 
 class ApiView(web.View):
     async def get_data(self):
@@ -21,12 +23,27 @@ class ApiView(web.View):
                 file_path = os.path.join(static_path, 'index.html')
             return web.FileResponse(path=file_path)
         else:
-            if self.request.not_uniq:
-                if self.request.request_count % rand_req_count != 0:
+            count_gotbest = self.request.app.view_count['gotbest']
+            count_aliexpress = self.request.app.view_count['aliexpress']
+            if count_gotbest > ((count_aliexpress + count_aliexpress) / 100.0) * gotbest_range:
+                if self.request.not_uniq:
                     return web.Response(body='')
-                return web.HTTPFound(choice(partner_offers))
+                else:
+                    self.request.app.view_count['aliexpress'] += 1
+                    return web.HTTPFound(choice(partner_offers))
             else:
-                return web.HTTPFound(partner_link)
+                if self.request.not_uniq:
+                    return web.Response(body='')
+                else:
+                    self.request.app.view_count['gotbest'] += 1
+                    return web.HTTPFound(partner_link)
+
+            # if self.request.not_uniq:
+            #     if self.request.request_count % rand_req_count != 0:
+            #         return web.Response(body='')
+            #     return web.HTTPFound(choice(partner_offers))
+            # else:
+            #     return web.HTTPFound(partner_link)
 
     async def get(self):
         return await self.get_data()

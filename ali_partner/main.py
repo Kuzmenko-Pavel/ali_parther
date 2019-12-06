@@ -35,6 +35,10 @@ def init(loop, argv):
     config['socket'] = options.socket
     config['dir_path'] = dir_path
     app = web.Application(loop=loop)
+    app.view_count = {
+        'gotbest': 0,
+        'aliexpress': 0,
+    }
     app['config'] = config
     if app['config']['debug']['console']:
         aiohttp_debugtoolbar.setup(app)

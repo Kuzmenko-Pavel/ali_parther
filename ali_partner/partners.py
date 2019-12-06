@@ -14,7 +14,7 @@ with open(json_path) as json_file:
         for ix, item in enumerate(data, 1):
             partner_links[ix] = {
                 'partner_link': item.get('partner'),
-                'partner_offers': [item.get('original')]
+                'partner_offers': [item.get('sclick')]
             }
     except Exception as e:
         print(e)

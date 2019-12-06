@@ -25,7 +25,7 @@ class ApiView(web.View):
         else:
             count_gotbest = self.request.app.view_count['gotbest']
             count_aliexpress = self.request.app.view_count['aliexpress']
-            if (count_gotbest + count_aliexpress) % 10 == 0:
+            if (count_gotbest + count_aliexpress) % 1000 == 0:
                 print('gotbest %s aliexpress %s' % (count_gotbest, count_aliexpress))
             if count_gotbest > ((count_gotbest + count_aliexpress) / 100.0) * gotbest_range:
                 if self.request.not_uniq:

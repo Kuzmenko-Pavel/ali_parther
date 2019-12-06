@@ -53,9 +53,9 @@ async def cookie_middleware(app, handler):
         # имя куки партнера
         partner_id = 'pi'
 
-        expires = datetime.utcnow() + timedelta(hours=2)
+        expires = datetime.utcnow() + timedelta(hours=24)
         user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        user_cookie_max_age = 60 * 60 * 2
+        user_cookie_max_age = 60 * 60 * 24
 
         try:
             # получаю счетчик запросов
@@ -82,19 +82,20 @@ async def cookie_middleware(app, handler):
         request.partner = partner
         response = await handler(request)
 
-        #пересоздал куку счетчика с новыми значениями
-        response.set_cookie(partner_unique, request.request_count << 32, path='',
-                            expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
+        if not request.not_uniq:
+            #пересоздал куку счетчика с новыми значениями
+            response.set_cookie(partner_unique, request.request_count << 32, path='',
+                                expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
 
-        # пересоздал куку партнера с новыми временем
-        response.set_cookie(partner_id, request.partner << 32, path='',
-                            expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
-        try:
-            #костыль для поддержки samesite
-            response._cookies[partner_unique]['samesite'] = None
-            response._cookies[partner_id]['samesite'] = None
-        except Exception:
-            pass
+            # пересоздал куку партнера с новыми временем
+            response.set_cookie(partner_id, request.partner << 32, path='',
+                                expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
+            try:
+                #костыль для поддержки samesite
+                response._cookies[partner_unique]['samesite'] = None
+                response._cookies[partner_id]['samesite'] = None
+            except Exception:
+                pass
         return response
 
     return middleware

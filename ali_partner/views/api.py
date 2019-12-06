@@ -4,6 +4,7 @@ from random import choice, randint
 from aiohttp import web
 
 from ali_partner.partners import partner_links
+from ali_partner.logger import logger
 
 gotbest_range = 10.0
 
@@ -26,7 +27,7 @@ class ApiView(web.View):
             count_gotbest = self.request.app.view_count['gotbest']
             count_aliexpress = self.request.app.view_count['aliexpress']
             if (count_gotbest + count_aliexpress) % 1000 == 0:
-                print('gotbest %s aliexpress %s' % (count_gotbest, count_aliexpress))
+                logger.info(('gotbest %s aliexpress %s' % (count_gotbest, count_aliexpress)))
             if count_gotbest > ((count_gotbest + count_aliexpress) / 100.0) * gotbest_range:
                 if self.request.not_uniq:
                     return web.Response(body='')

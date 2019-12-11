@@ -5,7 +5,6 @@ from aiohttp import web
 from random import randint
 
 from ali_partner.logger import logger, exception_message
-from ali_partner.partners import partner_links
 
 
 async def handle_404(request, response):
@@ -46,56 +45,43 @@ def error_pages(overrides):
 
 async def cookie_middleware(app, handler):
     async def middleware(request):
-        rand_partner_id = randint(1, len(partner_links))
-        #имя куки счетчика запросов
-        partner_unique = 'pui'
 
-        # имя куки партнера
-        partner_id = 'pi'
+        request.ali_visited = False
+        request.partner_visited = False
 
-        expires = datetime.utcnow() + timedelta(hours=24)
-        user_cookie_expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
-        user_cookie_max_age = 60 * 60 * 24
+        partner_cookie_name = 'puc'
+        ali_cookie_name = 'auc'
 
-        try:
-            # получаю счетчик запросов
-            request_count = int(request.cookies.get(partner_unique, 0 << 32)) >> 32
+        partner_cookie = request.cookies.get(partner_cookie_name)
 
-            # получаю партнера
-            partner = int(request.cookies.get(partner_id, rand_partner_id << 32)) >> 32
-        except Exception as e:
-            #если чето левое было то дефолт
-            request_count = 1
-            partner = rand_partner_id
+        ali_cookie = request.cookies.get(ali_cookie_name)
 
-        #если счетчик больше 0, то не уник
-        if request_count > 0:
-            request.not_uniq = True
-        else:
-            request.not_uniq = False
+        if partner_cookie:
+            request.partner_visited = True
 
-        #инкремент счетчика
-        request_count += 1
+        if ali_cookie:
+            request.ali_visited = True
 
-        #засунул в реквест чтобы дальше работать
-        request.request_count = request_count
-        request.partner = partner
         response = await handler(request)
 
-        if not request.not_uniq:
-            #пересоздал куку счетчика с новыми значениями
-            response.set_cookie(partner_unique, request.request_count << 32, path='',
-                                expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
+        if not request.partner_visited:
+            hours = 24
+            partner_expires = datetime.utcnow() + timedelta(hours=hours)
+            partner_cookie_expires = partner_expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+            partner_cookie_max_age = 60 * 60 * hours
 
-            # пересоздал куку партнера с новыми временем
-            response.set_cookie(partner_id, request.partner << 32, path='',
-                                expires=user_cookie_expires, max_age=user_cookie_max_age, secure=True)
-            try:
-                #костыль для поддержки samesite
-                response._cookies[partner_unique]['samesite'] = None
-                response._cookies[partner_id]['samesite'] = None
-            except Exception:
-                pass
+            response.set_cookie(partner_cookie_name, randint(1, 1000000000), path='',
+                                expires=partner_cookie_expires, max_age=partner_cookie_max_age, secure=True)
+
+        if not request.ali_visited:
+            hours = 3
+            ali_expires = datetime.utcnow() + timedelta(hours=hours)
+            ali_cookie_expires = ali_expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+            ali_cookie_max_age = 60 * 60 * hours
+
+            response.set_cookie(ali_cookie_name, randint(1, 1000000000), path='',
+                                expires=ali_cookie_expires, max_age=ali_cookie_max_age, secure=True)
+
         return response
 
     return middleware

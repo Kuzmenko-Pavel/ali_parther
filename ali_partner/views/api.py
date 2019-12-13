@@ -39,7 +39,8 @@ class ApiView(web.View):
                 return web.HTTPFound(choice(partner_offers))
         else:
             if self.request.partner_visited:
-                return web.Response(body='')
+                self.request.app.view_count['aliexpress'] += 1
+                return web.HTTPFound(choice(partner_offers))
             else:
                 self.request.app.view_count['gotbest'] += 1
                 return web.HTTPFound(partner_link)

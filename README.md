@@ -22,7 +22,7 @@
 
 - Check redirect
 
-    curl --referer rg.yottos.com -L -I http://0.0.0.0:10000
+    curl --referer rg.yottos.com -L http://0.0.0.0:10000
     
 - Check partner links
 

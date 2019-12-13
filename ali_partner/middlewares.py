@@ -74,7 +74,7 @@ async def cookie_middleware(app, handler):
                                 expires=partner_cookie_expires, max_age=partner_cookie_max_age, secure=True)
 
         if not request.ali_visited:
-            hours = 3
+            hours = 1
             ali_expires = datetime.utcnow() + timedelta(hours=hours)
             ali_cookie_expires = ali_expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
             ali_cookie_max_age = 60 * 60 * hours

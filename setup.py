@@ -27,7 +27,8 @@ install_requires = ['aiohttp',
                     'uvloop',
                     'cchardet',
                     'aiohttp_debugtoolbar',
-                    'requests'
+                    'requests',
+                    'pillow'
                     ]
 
 setup(

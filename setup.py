@@ -28,7 +28,8 @@ install_requires = ['aiohttp',
                     'cchardet',
                     'aiohttp_debugtoolbar',
                     'requests',
-                    'pillow'
+                    'pillow',
+                    'ua-parser>=0.4.1',
                     ]
 
 setup(

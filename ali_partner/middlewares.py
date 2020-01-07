@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 
-from aiohttp import web
+from aiohttp import web, hdrs
 
 from random import randint
 
 from ali_partner.logger import logger, exception_message
+from ali_partner.user_agents import simple_parse
 
 
 async def handle_404(request, response):
@@ -87,10 +88,21 @@ async def cookie_middleware(app, handler):
     return middleware
 
 
+async def detect_bot_middleware(app, handler):
+    async def middleware(request):
+        headers = request.headers
+        request.user_agent = headers[hdrs.USER_AGENT]
+        request.bot = simple_parse(request.user_agent) == 'bt'
+        response = await handler(request)
+        return response
+
+    return middleware
+
+
 async def check_referer_middleware(app, handler):
     async def middleware(request):
         headers = request.headers
-        request.referer = headers.get('Referer', '')
+        request.referer = headers.get(hdrs.REFERER, '')
         if 'rg.yottos.com' in request.referer:
             request.fail_referer = False
         else:
@@ -105,9 +117,18 @@ async def disable_cache_middleware(app, handler):
     async def middleware(request):
         expiry_time = datetime.utcnow()
         response = await handler(request)
-        response.headers["Cache-Control"] = "no-cache, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        response.headers[hdrs.CACHE_CONTROL] = "no-cache, must-revalidate"
+        response.headers[hdrs.PRAGMA] = "no-cache"
+        response.headers[hdrs.EXPIRES] = expiry_time.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        return response
+
+    return middleware
+
+
+async def not_robot(app, handler):
+    async def middleware(request):
+        response = await handler(request)
+        response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive, notranslate, noimageindex'
         return response
 
     return middleware
@@ -121,3 +142,5 @@ def setup_middlewares(app):
     app.middlewares.append(cookie_middleware)
     app.middlewares.append(check_referer_middleware)
     app.middlewares.append(disable_cache_middleware)
+    app.middlewares.append(not_robot)
+    app.middlewares.append(detect_bot_middleware)

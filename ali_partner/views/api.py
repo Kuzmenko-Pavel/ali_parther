@@ -14,13 +14,14 @@ class ApiView(web.View):
         if processed is None:
             return web.Response(body='')
 
-        if self.request.fail_referer:
+        if self.request.fail_referer or self.request.bot:
             static_path = os.path.join(self.request.app['config']['dir_path'], 'static')
             tail = self.request.match_info['tail']
             file_path = os.path.join(static_path, tail)
             file_exists = os.path.isfile(file_path)
             if not file_exists:
                 file_path = os.path.join(static_path, 'index.html')
+            logger.info('fail_referer %s or user-agent %s' % (self.request.referer, self.request.user_agent))
             return web.FileResponse(path=file_path)
 
         if self.request.ali_visited:

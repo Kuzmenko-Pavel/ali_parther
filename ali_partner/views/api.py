@@ -11,6 +11,7 @@ gotbest_range = 1.0
 
 class ApiView(web.View):
     async def get_data(self, processed=None):
+        print(self.request)
         return web.Response(body='')
         # if processed is None:
         #     return web.Response(body='')

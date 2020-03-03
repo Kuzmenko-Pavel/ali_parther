@@ -131,6 +131,9 @@ async def not_robot(app, handler):
     async def middleware(request):
         response = await handler(request)
         response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive, notranslate, noimageindex'
+        response.headers['Accept-CH'] = 'device-memory, dpr, width, viewport-width, rtt, downlink, ect'
+        response.headers['Accept-CH-Lifetime'] = '31536000'
+        response.headers['Referrer-Policy'] = 'no-referrer'
         return response
 
     return middleware

@@ -23,9 +23,14 @@ class ApiView(web.View):
             ))
         else:
             if self.request.fail_referer or self.request.bot or self.request.is_customer:
+                fail = 'Fail Referer'
+                if self.request.bot:
+                    fail = 'Fail BOT'
+                if self.request.is_customer:
+                    fail = 'Fail Customer'
                 static = True
-                logger.info('fail_referer %s or user-agent %s or ip %s' % (
-                    self.request.referer, self.request.user_agent, self.request.ip))
+                logger.info('%s %s or user-agent %s or ip %s' % (fail, self.request.referer,
+                                                                 self.request.user_agent, self.request.ip))
 
         if static:
             static_path = os.path.join(self.request.app['config']['dir_path'], 'static')

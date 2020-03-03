@@ -6,7 +6,7 @@ from aiohttp import web
 from ali_partner.partners import partner_links
 from ali_partner.logger import logger
 
-gotbest_range = 0.1
+gotbest_range = 1.0
 
 
 class ApiView(web.View):
@@ -48,7 +48,7 @@ class ApiView(web.View):
         partner_offers = partner_links[partner]['partner_offers']
         count_gotbest = self.request.app.view_count['gotbest']
         count_aliexpress = self.request.app.view_count['aliexpress']
-        if (count_gotbest + count_aliexpress) % 1000 == 0:
+        if (count_gotbest + count_aliexpress) % 100 == 0:
             logger.info(('gotbest %s aliexpress %s' % (count_gotbest, count_aliexpress)))
 
         if count_gotbest > ((count_gotbest + count_aliexpress) / 100.0) * gotbest_range:

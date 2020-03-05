@@ -16,6 +16,7 @@ from aiohttp import web
 from trafaret_config import commandline
 
 from ali_partner.logger import logger
+from ali_partner.redis import init_redis, close_redis
 from ali_partner.middlewares import setup_middlewares
 from ali_partner.routes import setup_routes
 from ali_partner.utils import TRAFARET_CONF
@@ -42,8 +43,10 @@ def init(loop, argv):
     app['config'] = config
     if app['config']['debug']['console']:
         aiohttp_debugtoolbar.setup(app)
+    app.on_startup.append(init_redis)
     setup_routes(app)
     setup_middlewares(app)
+    app.on_cleanup.append(close_redis)
     return app
 
 

@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 import re
-
 from aiohttp import web, hdrs
-
+from hashlib import md5
 from random import randint
 
 from ali_partner.logger import logger, exception_message
@@ -115,6 +114,42 @@ async def check_referer_middleware(app, handler):
     return middleware
 
 
+async def fingerprint_middleware(app, handler):
+    async def middleware(request):
+        ip = '127.0.0.1'
+        ip_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
+        headers = request.headers
+        x_real_ip = headers.get('X-Real-IP', headers.get('X-Forwarded-For', ''))
+        x_real_ip_check = ip_regex.match(x_real_ip)
+        if x_real_ip_check:
+            x_real_ip = x_real_ip_check.group()
+        else:
+            x_real_ip = None
+
+        if x_real_ip is not None:
+            ip = x_real_ip
+        else:
+            try:
+                peername = request.transport.get_extra_info('peername')
+                if peername is not None and isinstance(peername, tuple):
+                    ip, _ = peername
+            except Exception as ex:
+                logger.error(exception_message(exc=str(ex), request=str(request._message)))
+
+        headers = request.headers
+        d = headers.get(hdrs.ACCEPT, '').replace(' ', '')
+        d += headers.get(hdrs.ACCEPT_LANGUAGE, '').replace(' ', '')
+        d += headers.get(hdrs.USER_AGENT, '').replace(' ', '')
+        d += headers.get(hdrs.ACCEPT_ENCODING, '').replace(' ', '')
+        d += headers.get('X_SSL_CERT', '').replace(' ', '')
+        d += ip
+        request.fingeprint = md5(d.encode('utf-8')).hexdigest()
+        response = await handler(request)
+        return response
+
+    return middleware
+
+
 async def disable_cache_middleware(app, handler):
     async def middleware(request):
         expiry_time = datetime.utcnow()
@@ -188,3 +223,4 @@ def setup_middlewares(app):
     app.middlewares.append(not_robot)
     app.middlewares.append(detect_bot_middleware)
     app.middlewares.append(customer_middleware)
+    app.middlewares.append(fingerprint_middleware)

@@ -11,7 +11,17 @@ gotbest_range = 0.1
 
 class ApiView(web.View):
     async def get_data(self, processed=None):
+        fingeprint = self.request.fingeprint
+
         static = False
+        with await self.request.app.redis_pool as conn:
+            val = await conn.ttl(fingeprint)
+            if val > 0:
+                print(val)
+                static = True
+
+            await conn.set(fingeprint, 1, expire=60*30)
+
         tail = self.request.match_info['tail']
         if processed is None:
             return web.Response(body='')

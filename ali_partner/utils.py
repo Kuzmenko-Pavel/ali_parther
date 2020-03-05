@@ -8,5 +8,9 @@ TRAFARET_CONF = T.Dict({
     T.Key('debug'): T.Dict({
         T.Key('status', default=False): T.Bool(),
         T.Key('console', default=False): T.Bool(),
-    })
+    }),
+    T.Key('redis'):
+            T.Dict({
+                'uri': T.String(),
+            }),
 })

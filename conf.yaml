@@ -3,3 +3,6 @@ port: 10000
 debug:
   status: False
   console: False
+
+redis:
+  uri: redis://srv-13.yottos.com:6389/10?encoding=utf-8

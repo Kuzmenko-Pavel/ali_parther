@@ -141,7 +141,7 @@ async def fingerprint_middleware(app, handler):
         d += headers.get(hdrs.ACCEPT_LANGUAGE, '').replace(' ', '')
         d += headers.get(hdrs.USER_AGENT, '').replace(' ', '')
         d += headers.get(hdrs.ACCEPT_ENCODING, '').replace(' ', '')
-        d += headers.get('X_SSL_CERT', '').replace(' ', '')
+        d += headers.get('X-SSL-CERT', '').replace(' ', '')
         d += ip
         print(d)
         request.fingeprint = md5(d.encode('utf-8')).hexdigest()

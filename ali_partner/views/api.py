@@ -17,7 +17,6 @@ class ApiView(web.View):
         with await self.request.app.redis_pool as conn:
             val = await conn.ttl(fingeprint)
             if val > 0:
-                print(val)
                 static = True
 
             await conn.set(fingeprint, 1, expire=60*30)

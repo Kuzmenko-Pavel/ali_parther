@@ -6,7 +6,7 @@ from aiohttp import web
 from ali_partner.partners import partner_links
 from ali_partner.logger import logger
 
-gotbest_range = 1
+gotbest_range = 0.25
 
 
 class ApiView(web.View):

@@ -72,7 +72,7 @@ class ApiView(web.View):
                 return web.HTTPFound(partner_link)
 
     async def get(self):
-        return await self.get_data(True)
+        return await self.get_data()
 
     async def post(self):
         return await self.get_data()
